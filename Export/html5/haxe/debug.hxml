@@ -1,0 +1,21 @@
+-main ApplicationMain 
+--macro openfl._internal.utils.ExtraParams.include()
+-cp /usr/local/lib/haxe/lib/openfl/7,1,2/src
+-D openfl=7.1.2
+--macro lime.Lib.extraParams()
+-cp /usr/local/lib/haxe/lib/lime/6,2,0
+-D lime=6.2.0
+-cp Source
+-D tools=6.2.0
+-D howlerjs
+-D no-compilation
+-D lime-opengl
+-D openfl-html5
+-D lime-html5
+-D html5
+-D web
+--remap flash:openfl
+-js Export/html5/bin/Haxtris.js
+-cp Export/html5/haxe
+-D html5
+-debug
