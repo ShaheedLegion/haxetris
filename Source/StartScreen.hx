@@ -13,7 +13,7 @@ class StartScreen implements IGameScreenObject {
 		var textFormat:TextFormat = new TextFormat();
 		textFormat.font = "Arial";
 		textFormat.size = 18;
-		textFormat.color = 0x0000FF;
+		textFormat.color = 0xFF00FF;
 		textFormat.align = TextFormatAlign.CENTER;
 
 		text.autoSize = TextFieldAutoSize.CENTER;
@@ -36,7 +36,7 @@ class StartScreen implements IGameScreenObject {
 
 	public function render(worldState: WorldState): Void {
 		var canvas: Sprite = worldState.getPreparedCanvas();
-		canvas.graphics.beginFill (0x2F2F2F, 1);
+		canvas.graphics.beginFill (0x0C0C0C, 1);
 		canvas.graphics.drawRect (0, 0, worldState.getDisplayWidth(), worldState.getDisplayHeight());
 
 		worldState.getGridScreen().render(worldState);

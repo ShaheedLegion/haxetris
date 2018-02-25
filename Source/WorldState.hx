@@ -10,6 +10,7 @@ class WorldState implements IResizeable {
 	private var displayHeight: Int;	// external height of game display / canvas.
 	private var canvas: Sprite;	// drawable surface of the game.
 	private var gridScreen: GridScreen; // Grid screen display.
+	private var gridController: GridScreenController; // Grid Screen Controller.
 	private var touchRegistered: Bool; // Is user touching screen?
 	private var touchBeginPoint: Point; //Point where touch started.
 	private var touchEndPoint: Point; // Point where touch gesture ended.
@@ -27,7 +28,8 @@ class WorldState implements IResizeable {
 
 		canvas.graphics.beginFill (0xFF0000, 1);
 		canvas.graphics.drawRect (0, 0, intrinsicWidth, intrinsicHeight);
-		gridScreen = new GridScreen(this);
+		gridController = new GridScreenController(this);
+		gridScreen = new GridScreen(this, gridController);
 	}
 
 	@:allow(HaxeTris, GridScreen)

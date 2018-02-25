@@ -8,7 +8,7 @@ class GameScreen implements IGameScreenObject {
 
 	public function render(worldState: WorldState): Void {
 		var canvas: Sprite = worldState.getPreparedCanvas();
-		canvas.graphics.beginFill (0x1A1A1A, 1);
+		canvas.graphics.beginFill (0x080808, 1);
 		canvas.graphics.drawRect (0, 0, worldState.getDisplayWidth(), worldState.getDisplayHeight());
 
 		worldState.getGridScreen().render(worldState);

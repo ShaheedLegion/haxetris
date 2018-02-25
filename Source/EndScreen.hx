@@ -13,7 +13,7 @@ class EndScreen implements IGameScreenObject {
 		var textFormat:TextFormat = new TextFormat();
 		textFormat.font = "Arial";
 		textFormat.size = 18;
-		textFormat.color = 0x0000FF;
+		textFormat.color = 0xFF00FF;
 		textFormat.align = TextFormatAlign.CENTER;
 
 		text.autoSize = TextFieldAutoSize.CENTER;

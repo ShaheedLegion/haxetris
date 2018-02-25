@@ -1,20 +1,14 @@
-class GridScreen implements IGameObject {
+class GridScreenController implements IGameObject {
 
-	private var gridLocationX: Int;
-	private var gridLocationY: Int;
-	private var gridPixelWidth: Int;
-	private var gridPixelHeight: Int;
-	private var gridController: IGameObject;
+	private var autoMode: Bool;
 
-	public function new(worldState: WorldState, controller: IGameObject) {
-		update(worldState);
+	public function new(worldState: WorldState) {
+		autoMode = true;
 	}
-
-	public function resize (newWidth: Int, newHeight: Int): Void {}
 
 	public function render(worldState: WorldState): Void {
 		//super.render(worldState);
-
+/*
 		// I know in perfect pixesl what the width/height of the grid should be.
 		var width = worldState.getDisplayWidth();
 		var height = worldState.getDisplayHeight();
@@ -40,6 +34,7 @@ class GridScreen implements IGameObject {
 		gridPixelHeight = newHeightCalculated;
 		worldState.getCanvas().graphics.beginFill (0x223322, 1);
 		worldState.getCanvas().graphics.drawRect (gridLocationX, gridLocationY, gridPixelWidth, gridPixelHeight);
+*/
 	}
 	public function update(worldState: WorldState): Void {
 		//super.update(worldState);
@@ -49,17 +44,6 @@ class GridScreen implements IGameObject {
 		//super.outputDebug(worldState);
 	}
 
-	public function getGridX(): Int {
-		return gridLocationX;
-	}
-	public function getGridY(): Int {
-		return gridLocationY;
-	}
-	public function getGridWidth(): Int {
-		return gridPixelWidth;
-	}
-	public function getGridHeight(): Int {
-		return gridPixelHeight;
-	}
+	public function resize (newWidth: Int, newHeight: Int): Void {}
 
 }
