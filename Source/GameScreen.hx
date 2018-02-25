@@ -1,8 +1,28 @@
 import openfl.display.Sprite;
+import openfl.text.TextFieldAutoSize;
+import openfl.text.TextFormatAlign;
+import openfl.text.TextField;
+import openfl.text.TextFormat;
 
 class GameScreen implements IGameScreenObject {
 
-	public function new(worldState: WorldState) {}
+	private var textFormat: TextFormat = new TextFormat();
+	private var text: TextField = new TextField();
+
+	public function new(worldState: WorldState) {
+		var textFormat:TextFormat = new TextFormat();
+		textFormat.font = "Arial";
+		textFormat.size = 18;
+		textFormat.color = 0xFF00FF;
+		textFormat.align = TextFormatAlign.CENTER;
+
+		text.autoSize = TextFieldAutoSize.CENTER;
+		text.selectable = false;
+		text.multiline = true;
+		text.defaultTextFormat = textFormat;
+
+		text.text = "Score: ";
+	}
 
 	public function resize (newWidth: Int, newHeight: Int): Void {}
 
@@ -16,6 +36,11 @@ class GameScreen implements IGameScreenObject {
 	public function update(worldState: WorldState): Void {
 		worldState.getGridController().update(worldState);
 		worldState.getGridScreen().update(worldState);
+
+		text.text = "Score: " + worldState.getGridController().getScore();
+		text.x = worldState.getGridX() +
+		(worldState.getGridWidth() / 2) - (text.width / 2);
+		text.y = worldState.getGridY() + 16;
 	}
 	public function outputDebug(worldState: WorldState): Void {
 		worldState.getGridScreen().outputDebug(worldState);
@@ -26,8 +51,11 @@ class GameScreen implements IGameScreenObject {
 		// Init the grid - again.
 		// Since the grid is the main component of haxtris.
 		worldState.getGridController().setAutoMode(false);
+		worldState.getPreparedCanvas().addChild(text);
 	}
-	public function exitGameScreen(worldState: WorldState): Void {}
+	public function exitGameScreen(worldState: WorldState): Void {
+		worldState.getPreparedCanvas().removeChild(text);
+	}
 
 	public function shouldTransition(worldState: WorldState): Bool {
 		return worldState.getGridController().shouldTransition(worldState);

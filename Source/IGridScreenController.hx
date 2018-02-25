@@ -7,4 +7,5 @@ interface IGridScreenController extends IGameObject {
 	public function getGridRepresentation(): Array<Int>;
 	public function setAutoMode(auto: Bool): Void;
 	public function shouldTransition(worldState: WorldState): Bool;
+	public function getScore(): Int;
 }
