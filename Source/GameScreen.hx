@@ -14,6 +14,7 @@ class GameScreen implements IGameScreenObject {
 		worldState.getGridScreen().render(worldState);
 	}
 	public function update(worldState: WorldState): Void {
+		worldState.getGridController().update(worldState);
 		worldState.getGridScreen().update(worldState);
 	}
 	public function outputDebug(worldState: WorldState): Void {
@@ -24,12 +25,11 @@ class GameScreen implements IGameScreenObject {
 		// The player has started the game.
 		// Init the grid - again.
 		// Since the grid is the main component of haxtris.
+		worldState.getGridController().setAutoMode(false);
 	}
 	public function exitGameScreen(worldState: WorldState): Void {}
-	public function shouldTransition(worldState: WorldState): Bool {
-		var lastKey = worldState.consumeKeyPress();
-		if (lastKey == 32) return true;
 
-		return false;
+	public function shouldTransition(worldState: WorldState): Bool {
+		return worldState.getGridController().shouldTransition(worldState);
 	}
 }

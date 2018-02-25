@@ -1,9 +1,5 @@
 class GridScreen implements IGameObject {
 
-	private var gridLocationX: Int;
-	private var gridLocationY: Int;
-	private var gridPixelWidth: Int;
-	private var gridPixelHeight: Int;
 	private var gridController: IGameObject;
 
 	public function new(worldState: WorldState, controller: IGameObject) {
@@ -14,7 +10,7 @@ class GridScreen implements IGameObject {
 
 	public function render(worldState: WorldState): Void {
 		//super.render(worldState);
-
+		var canvas = worldState.getCanvas();
 		// I know in perfect pixesl what the width/height of the grid should be.
 		var width = worldState.getDisplayWidth();
 		var height = worldState.getDisplayHeight();
@@ -34,32 +30,48 @@ class GridScreen implements IGameObject {
 		var xpos = (remainderX >> 1);
 		var ypos = (remainderY >> 1);
 
-		gridLocationX = xpos;
-		gridLocationY = ypos;
-		gridPixelWidth = newWidthCalculated;
-		gridPixelHeight = newHeightCalculated;
-		worldState.getCanvas().graphics.beginFill (0x223322, 1);
-		worldState.getCanvas().graphics.drawRect (gridLocationX, gridLocationY, gridPixelWidth, gridPixelHeight);
-	}
-	public function update(worldState: WorldState): Void {
-		//super.update(worldState);
+		var gridLocationX = xpos;
+		var gridLocationY = ypos;
+		var gridPixelWidth = newWidthCalculated;
+		var gridPixelHeight = newHeightCalculated;
+		canvas.graphics.beginFill (0x2F332F, 1);
+		canvas.graphics.drawRect (gridLocationX, gridLocationY, gridPixelWidth, gridPixelHeight);
 
-	}
-	public function outputDebug(worldState: WorldState): Void {
-		//super.outputDebug(worldState);
-	}
+		worldState.setGridLocationX(gridLocationX);
+		worldState.setGridLocationY(gridLocationY);
+		worldState.setGridWidth(gridPixelWidth);
+		worldState.setGridHeight(gridPixelHeight);
 
-	public function getGridX(): Int {
-		return gridLocationX;
+		canvas.graphics.lineStyle(1.0, 0x222222, 1.0);
+
+		var lineStepX: Int = Math.ceil(worldState.getGridWidth() / worldState.getGridColumns());
+		var lineStepY: Int = Math.ceil(worldState.getGridHeight() / worldState.getGridRows());
+		var currentX: Int = 0;
+		var currentY: Int = worldState.getGridY();
+		var gridRep = worldState.getGridController().getGridRepresentation();
+
+		var currentIndex = 0;
+		for (y in 0...worldState.getGridRows()) {
+			currentX = worldState.getGridX();
+			canvas.graphics.moveTo(currentX, currentY);
+			canvas.graphics.lineTo(currentX + worldState.getGridWidth(), currentY);
+
+			for (x in 0...worldState.getGridColumns()) {
+				canvas.graphics.moveTo(currentX, currentY);
+				canvas.graphics.lineTo(currentX, currentY + worldState.getGridHeight());
+
+				// Draw the block, then increment the index.
+				canvas.graphics.beginFill(gridRep[currentIndex]);
+				canvas.graphics.drawRect(currentX, currentY, lineStepX, lineStepY);
+				++currentIndex;
+				currentX += lineStepX;
+			}
+
+			currentY += lineStepY;
+		} 
+		
 	}
-	public function getGridY(): Int {
-		return gridLocationY;
-	}
-	public function getGridWidth(): Int {
-		return gridPixelWidth;
-	}
-	public function getGridHeight(): Int {
-		return gridPixelHeight;
-	}
+	public function update(worldState: WorldState): Void {}
+	public function outputDebug(worldState: WorldState): Void {}
 
 }

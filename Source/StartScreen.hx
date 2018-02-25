@@ -43,12 +43,11 @@ class StartScreen implements IGameScreenObject {
 	}
 
 	public function update(worldState: WorldState): Void {
+		worldState.getGridController().update(worldState);
 		worldState.getGridScreen().update(worldState);
-		text.x = worldState.getGridScreen().getGridX() +
-		(worldState.getGridScreen().getGridWidth() / 2) - (text.width / 2);
-		text.y = worldState.getGridScreen().getGridY() + 50;
-
-		// TODO - scaling to match grid width / height.
+		text.x = worldState.getGridX() +
+		(worldState.getGridWidth() / 2) - (text.width / 2);
+		text.y = worldState.getGridY() + 50;
 	}
 	public function outputDebug(worldState: WorldState): Void {
 		worldState.getGridScreen().outputDebug(worldState);
@@ -56,6 +55,7 @@ class StartScreen implements IGameScreenObject {
 
 	public function enterGameScreen(worldState: WorldState): Void {
 		worldState.getPreparedCanvas().addChild(text);
+		worldState.getGridController().setAutoMode(true);
 	}
 	public function exitGameScreen(worldState: WorldState): Void {
 		worldState.getPreparedCanvas().removeChild(text);
@@ -63,7 +63,9 @@ class StartScreen implements IGameScreenObject {
 	public function shouldTransition(worldState: WorldState): Bool {
 		// Check the key state to see if we should transition.
 		var lastKey = worldState.consumeKeyPress();
-		if (lastKey == 32) return true;
+		if (lastKey == 32) {
+			return true;
+		}
 
 		return false;
 	}

@@ -40,9 +40,9 @@ class EndScreen implements IGameScreenObject {
 	}
 	public function update(worldState: WorldState): Void {
 		worldState.getGridScreen().update(worldState);
-		text.x = worldState.getGridScreen().getGridX() +
-		(worldState.getGridScreen().getGridWidth() / 2) - (text.width / 2);
-		text.y = worldState.getGridScreen().getGridY() + 50;
+		text.x = worldState.getGridX() +
+		(worldState.getGridWidth() / 2) - (text.width / 2);
+		text.y = worldState.getGridY() + 50;
 
 		// TODO - scaling to match grid width / height.
 	}
@@ -52,6 +52,7 @@ class EndScreen implements IGameScreenObject {
 
 	public function enterGameScreen(worldState: WorldState): Void {
 		worldState.getPreparedCanvas().addChild(text);
+		worldState.getGridController().setAutoMode(true);
 	}
 	public function exitGameScreen(worldState: WorldState): Void {
 		worldState.getPreparedCanvas().removeChild(text);

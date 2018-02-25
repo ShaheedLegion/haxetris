@@ -2,8 +2,12 @@ import openfl.display.Sprite;
 import openfl.geom.Point;
 
 class WorldState implements IResizeable {
-	private var gridWidth: Int;	// number of columns.
-	private var gridHeight: Int;	// number of rows.
+	private var gridColumns: Int;	// number of columns.
+	private var gridRows: Int;	// number of rows.
+	private var gridLocationX: Int; // start location in pixels (after scaling).
+	private var gridLocationY: Int; // start location in pixels (after scaling).
+	private var gridPixelWidth: Int; // width in pixels (after scaling).
+	private var gridPixelHeight: Int; // height in pixels (after scaling).
 	private var intrinsicWidth: Int;	// internal width of canvas buffers / game screens.
 	private var intrinsicHeight: Int;	// internal height of canvas buffers / game screens.
 	private var displayWidth: Int;	// external width of game display / canvas.
@@ -17,13 +21,15 @@ class WorldState implements IResizeable {
 	private var keyPressed: Int; // The key that was pressed.
 
 	@:allow(HaxeTris)
-	private function new(gw :Int, gh: Int, w: Int, h: Int) {
-		gridWidth = gw;
-		gridHeight = gh;
+	private function new(gw: Int, gh: Int, w: Int, h: Int) {
+		gridColumns = gw;
+		gridRows = gh;
 		intrinsicWidth = w;
 		intrinsicHeight = h;
 		displayWidth = w;
 		displayHeight = h;
+		gridPixelWidth = w;
+		gridPixelHeight = h;
 		canvas = new Sprite();
 
 		canvas.graphics.beginFill (0xFF0000, 1);
@@ -41,15 +47,30 @@ class WorldState implements IResizeable {
 		canvas.scaleY = 1;
 		return canvas;
 	}
-	public function getGridScreen(): GridScreen {
+	public function getGridScreen(): IGameObject {
 		return gridScreen;
 	}
+	public function getGridController(): IGridScreenController {
+		return gridController;
+	}
 
+	public function getGridX(): Int {
+		return gridLocationX;
+	}
+	public function getGridY(): Int {
+		return gridLocationY;
+	}
 	public function getGridWidth(): Int {
-		return gridWidth;
+		return gridPixelWidth;
 	}
 	public function getGridHeight(): Int {
-		return gridHeight;
+		return gridPixelHeight;
+	}
+	public function getGridColumns(): Int {
+		return gridColumns;
+	}
+	public function getGridRows(): Int {
+		return gridRows;
 	}
 	public function getIntrinsicWidth(): Int {
 		return intrinsicWidth;
@@ -62,6 +83,23 @@ class WorldState implements IResizeable {
 	}
 	public function getDisplayHeight(): Int {
 		return displayHeight;
+	}
+
+	@:allow(GridScreen)
+	private function setGridLocationX(x: Int) {
+		gridLocationX = x;
+	}
+	@:allow(GridScreen)
+	private function setGridLocationY(y: Int) {
+		gridLocationY = y;
+	}
+	@:allow(GridScreen)
+	private function setGridWidth(w: Int) {
+		gridPixelWidth = w;
+	}
+	@:allow(GridScreen)
+	private function setGridHeight(h: Int) {
+		gridPixelHeight = h;
 	}
 
 	public function resize(newWidth: Int, newHeight: Int): Void {

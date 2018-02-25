@@ -3,7 +3,7 @@ import openfl.display.StageScaleMode;
 import openfl.events.Event;
 
 class Main extends Sprite implements IResizeable {
-	
+
 	private var haxeTris: HaxeTris; 
 
 	public function new() {
