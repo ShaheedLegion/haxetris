@@ -41,12 +41,14 @@ class GridScreenController implements IGridScreenController {
 		var generators: Array<Dynamic> = new Array();
 
 		generators.push(function(data: Array<Int>): Void {
+			while (data.length > 0) { data.pop(); }
 			data.push(1);
 			data.push(1);
 			data.push(1);
 			data.push(1);
 		});
 		generators.push(function(data: Array<Int>): Void {
+			while (data.length > 0) { data.pop(); }
 			data.push(1);
 			data.push(1);
 			data.push(0);
@@ -55,6 +57,7 @@ class GridScreenController implements IGridScreenController {
 			data.push(1);
 		});
 		generators.push(function(data: Array<Int>): Void {
+			while (data.length > 0) { data.pop(); }
 			data.push(0);
 			data.push(1);
 			data.push(1);
@@ -63,6 +66,7 @@ class GridScreenController implements IGridScreenController {
 			data.push(0);
 		});
 		generators.push(function(data: Array<Int>): Void {
+			while (data.length > 0) { data.pop(); }
 			data.push(1);
 			data.push(0);
 			data.push(1);
@@ -71,6 +75,7 @@ class GridScreenController implements IGridScreenController {
 			data.push(1);
 		});
 		generators.push(function(data: Array<Int>): Void {
+			while (data.length > 0) { data.pop(); }
 			data.push(0);
 			data.push(1);
 			data.push(0);
@@ -79,6 +84,7 @@ class GridScreenController implements IGridScreenController {
 			data.push(1);
 		});
 		generators.push(function(data: Array<Int>): Void {
+			while (data.length > 0) { data.pop(); }
 			data.push(1);
 			data.push(1);
 			data.push(1);
@@ -150,11 +156,66 @@ class GridScreenController implements IGridScreenController {
 		if (autoMode) return true;
 
 
-		return false;
+		return true;
 	} 
 
-	private function moveLeft(worldState: WorldState) {}
-	private function moveRight(worldState: WorldState) {}
+	private function moveLeft(worldState: WorldState) {
+		// Need to traverse around the entire block area and check every pixel to the left of the block.
+		if (currentBlock.x == 0) return;
+
+		// Else collision detect.
+		var canMoveLeft: Bool = true;
+		for (y in 0...currentBlock.height) {
+			var blockRowY = ((currentBlock.y + y));
+			if (blockRowY < worldState.getGridRows()) {
+				var blockIdx = blockRowY  * worldState.getGridColumns();
+				var newBlockX = currentBlock.x - 1;
+
+				var worldGridBlockStatus = grid[blockIdx + newBlockX];
+				var localGridBlockStatus = currentBlock.data[y * currentBlock.width];
+				if (worldGridBlockStatus == 0) { continue; }
+				if (localGridBlockStatus == 0) { continue; }
+
+				if (worldGridBlockStatus != 0 && localGridBlockStatus != 0) {
+					canMoveLeft = false;
+				}
+			}
+		}
+		if (canMoveLeft) {
+			eraseBlock(worldState);
+			--currentBlock.x;
+		}
+	}
+	private function moveRight(worldState: WorldState) {
+		// Need to traverse around the entire block area and check every pixel to the right of the block.
+		if (currentBlock.x + (currentBlock.width - 1) == worldState.getGridColumns() - 1) {
+			trace("Block can't move right - returning.");
+			return;
+		}
+
+		// Else collision detect.
+		var canMoveRight: Bool = true;
+		for (y in 0...currentBlock.height) {
+			var blockRowY = ((currentBlock.y + y));
+			if (blockRowY < worldState.getGridRows()) {
+				var blockIdx = blockRowY  * worldState.getGridColumns();
+				var newBlockX = currentBlock.x + currentBlock.width + 1;
+
+				var worldGridBlockStatus = grid[blockIdx + newBlockX];
+				var localGridBlockStatus = currentBlock.data[(y * currentBlock.width) + currentBlock.width - 1];
+				if (worldGridBlockStatus == 0) { continue; }
+				if (localGridBlockStatus == 0) { continue; }
+
+				if (worldGridBlockStatus != 0 && localGridBlockStatus != 0) {
+					canMoveRight = false;
+				}
+			}
+		}
+		if (canMoveRight) {
+			eraseBlock(worldState);
+			++currentBlock.x;
+		}
+	}
 	private function rotateBlock(worldState: WorldState) {}
 
 	private function eraseBlock(worldState: WorldState) {
@@ -211,6 +272,7 @@ class GridScreenController implements IGridScreenController {
 				currentBlock.x = Std.int(Math.random() * worldState.getGridColumns());
 				currentBlock.y = 0;
 				currentBlock.orientation = 0;
+				currentBlock.generator(currentBlock.data);
 
 				if ((currentBlock.x + currentBlock.width) > worldState.getGridColumns()) {
 					currentBlock.x = worldState.getGridColumns() - currentBlock.width;
