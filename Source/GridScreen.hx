@@ -35,8 +35,12 @@ class GridScreen implements IGameObject {
 		var xpos = (remainderX >> 1);
 		var ypos = (remainderY >> 1);
 
+		gridLocationX = xpos;
+		gridLocationY = ypos;
+		gridPixelWidth = newWidthCalculated;
+		gridPixelHeight = newHeightCalculated;
 		worldState.getCanvas().graphics.beginFill (0xFF0000, 1);
-		worldState.getCanvas().graphics.drawRect (xpos, ypos, newWidthCalculated, newHeightCalculated);
+		worldState.getCanvas().graphics.drawRect (gridLocationX, gridLocationY, gridPixelWidth, gridPixelHeight);
 	}
 	public function update(worldState: WorldState): Void {
 		//super.update(worldState);
@@ -45,4 +49,18 @@ class GridScreen implements IGameObject {
 	public function outputDebug(worldState: WorldState): Void {
 		//super.outputDebug(worldState);
 	}
+
+	public function getGridX(): Int {
+		return gridLocationX;
+	}
+	public function getGridY(): Int {
+		return gridLocationY;
+	}
+	public function getGridWidth(): Int {
+		return gridPixelWidth;
+	}
+	public function getGridHeight(): Int {
+		return gridPixelHeight;
+	}
+
 }

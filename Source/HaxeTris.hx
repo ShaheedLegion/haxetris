@@ -1,5 +1,7 @@
 import openfl.display.Sprite;
 import openfl.events.Event;
+import openfl.events.KeyboardEvent;
+import openfl.events.TouchEvent;
 
 class HaxeTris extends Sprite implements IResizeable {
 
@@ -10,15 +12,20 @@ class HaxeTris extends Sprite implements IResizeable {
 		super ();
 
 		worldState = new WorldState(10, 20, 400, 800);
-		screenManager = new ScreenManager(worldState);
 	}
 
 	public function init() {
 		//Background.filters = [ new BlurFilter (10, 10) ];
 		addChild (worldState.getCanvas());
 
+		screenManager = new ScreenManager(worldState);
+
 		stage.addEventListener(Event.ENTER_FRAME, onEnterFrame);
 		stage.addEventListener(Event.EXIT_FRAME, onExitFrame);
+		stage.addEventListener(KeyboardEvent.KEY_UP, onKeyUp);
+		stage.addEventListener(TouchEvent.TOUCH_BEGIN, onTouchBegin);
+		stage.addEventListener(TouchEvent.TOUCH_MOVE, onTouchMove);
+		stage.addEventListener(TouchEvent.TOUCH_END, onTouchEnd);
 	}
 
 	// IResizeable
@@ -32,5 +39,18 @@ class HaxeTris extends Sprite implements IResizeable {
 	}
 	private function onExitFrame(event: Event): Void {
 		screenManager.update(worldState);
+	}
+
+	private function onKeyUp(event: KeyboardEvent): Void {
+		worldState.setKeyPressed(event.keyCode);
+	}
+	private function onTouchBegin(event: TouchEvent): Void {
+		worldState.setTouchStarted(event.stageX, event.stageY);
+	}
+	private function onTouchMove(event: TouchEvent): Void {
+		worldState.setTouchMoved(event.stageX, event.stageY);
+	}
+	private function onTouchEnd(event: TouchEvent): Void {
+		worldState.setTouchEnded(event.stageX, event.stageY);
 	}
 }

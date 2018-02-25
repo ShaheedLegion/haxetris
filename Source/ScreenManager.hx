@@ -1,6 +1,6 @@
 class ScreenManager implements IGameObject {
 
-	private var gameScreens: Array<IGameObject>;
+	private var gameScreens: Array<IGameScreenObject>;
 	private var currentScreen: Int;
 
 	public function new(worldState: WorldState) {
@@ -9,6 +9,8 @@ class ScreenManager implements IGameObject {
 		gameScreens.push(new GameScreen(worldState));
 		gameScreens.push(new EndScreen(worldState));
 		currentScreen = 0;
+
+		gameScreens[currentScreen].enterGameScreen(worldState);
 	}
 
 	public function resize (newWidth: Int, newHeight: Int): Void {
@@ -23,7 +25,18 @@ class ScreenManager implements IGameObject {
 		}
 	}
 	public function update(worldState: WorldState): Void {
+		// Check if we need to transition.
 		if (currentScreen >= 0 && currentScreen < gameScreens.length) {
+			if (gameScreens[currentScreen].shouldTransition(worldState)) {
+				gameScreens[currentScreen].exitGameScreen(worldState);
+
+				// Check if we need to roll over to beginning.
+				currentScreen++;
+				if (currentScreen > gameScreens.length - 1) {
+					currentScreen = 0;
+				}
+				gameScreens[currentScreen].enterGameScreen(worldState);
+			}
 			gameScreens[currentScreen].update(worldState);
 		}
 	}

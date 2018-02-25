@@ -20,10 +20,10 @@ class Main extends Sprite implements IResizeable {
 
 	public function resize (newWidth: Int, newHeight: Int): Void {
 		haxeTris.resize (newWidth, newHeight);
-		trace("NewW: " + newWidth + " NewH: " + newHeight + " SW: " + stage.width + " SH: " + stage.height);
 	}
 
 	private function onResize (event:Event):Void {
 		resize (stage.stageWidth, stage.stageHeight);
 	}
+
 }
