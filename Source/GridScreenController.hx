@@ -18,6 +18,9 @@ class GridScreenController implements IGridScreenController {
 	private var blockTypes: Array<Block>;
 	private var frameSkip: Int;
 	private var frameCounter: Int;
+	private var MOVE_LEFT: Int = 37;
+	private var MOVE_RIGHT: Int = 39;
+	private var ROTATE: Int = 38;
 
 	public function new(worldState: WorldState) {
 		autoMode = true;
@@ -150,6 +153,10 @@ class GridScreenController implements IGridScreenController {
 		return false;
 	} 
 
+	private function moveLeft(worldState: WorldState) {}
+	private function moveRight(worldState: WorldState) {}
+	private function rotateBlock(worldState: WorldState) {}
+
 	private function eraseBlock(worldState: WorldState) {
 		for (y in 0...currentBlock.height) {
 			var blockRowY = ((currentBlock.y + y));
@@ -181,9 +188,18 @@ class GridScreenController implements IGridScreenController {
 		return hadValidBlockRows;
 	}
 	private function advanceBlock(worldState: WorldState) {
-		// currentblock must be moved.
-		// First 'erase' the following row of stuff under the block.
-		if (autoMode) {
+		// The user is playing - consume input.
+		var lastKey = worldState.consumeKeyPress();
+
+		if (lastKey == MOVE_LEFT) {
+			moveLeft(worldState);
+		} else if (lastKey == MOVE_RIGHT) {
+			moveRight(worldState);
+		} else if (lastKey == ROTATE) {
+			rotateBlock(worldState);
+		}
+
+		if (autoMode || canAdvanceBlock(worldState)) {
 			eraseBlock(worldState);
 			currentBlock.y++;
 
@@ -200,11 +216,7 @@ class GridScreenController implements IGridScreenController {
 					currentBlock.x = worldState.getGridColumns() - currentBlock.width;
 				}
 			}
-
-			return;
 		}
-
-		// Not so auto mode.
 	}
 
 }

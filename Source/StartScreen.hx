@@ -24,10 +24,12 @@ class StartScreen implements IGameScreenObject {
 		var textString: String = " Welcome to HaxTris \r";
 		textString += " Use SpaceBar to start \r";
 		textString += " Up arrow to rotate \r";
-		textString += " Left and Right Arrows to move \r";
-		textString += " Down to drop your block. \r\r";
-		textString += " On mobile swipe up/down/left/right. \r\r";
-		textString += " Hit SpaceBar or swipe up to start.";
+		textString += " Left and Right Arrows to move. \r";
+		//textString += " Down to drop your block. \r\r";
+
+		// TODO - Add + test mobile support.
+		//textString += " On mobile swipe up/down/left/right. \r\r";
+		//textString += " Hit SpaceBar or swipe up to start.";
 
 		text.text = textString;
 	}
