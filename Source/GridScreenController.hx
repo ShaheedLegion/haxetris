@@ -167,12 +167,12 @@ class GridScreenController implements IGridScreenController {
 	private function dropGridRow(worldState: WorldState, rowToDrop: Int) {
 		var startRow: Int = rowToDrop;
 		while (startRow > 0) {
-			--startRow;
 			for (x in 0...worldState.getGridColumns()) {
 				var gridIndex = startRow * worldState.getGridColumns() + x;
 				var gridPrevIndex = (startRow - 1) * worldState.getGridColumns() + x;
 				grid[gridIndex] = grid[gridPrevIndex];
 			}
+			--startRow;
 		}
 	}
 	private function gridSweep(worldState: WorldState) {
@@ -183,15 +183,15 @@ class GridScreenController implements IGridScreenController {
 		var filledRows: Array<Int> = new Array();
 
 		for (y in 0...worldState.getGridRows()) {
-			var currentRow: Int = (worldState.getGridRows() - 1) - y;
 			var isGridRowFull: Bool = true;
 			for (x in 0...worldState.getGridColumns()) {
-				var gridIndex = currentRow * worldState.getGridColumns() + x;
-				if (grid[gridIndex] == 0) { isGridRowFull = false;}
+				var gridIndex = y * worldState.getGridColumns() + x;
+				if (grid[gridIndex] == 0) { isGridRowFull = false; }
 			}
 
 			if (isGridRowFull) {
-				filledRows.push(currentRow);
+				trace("Grid row is full!! " + y);
+				filledRows.push(y);
 				++rowsScore;
 			}
 		}
@@ -352,6 +352,11 @@ class GridScreenController implements IGridScreenController {
 	private function drawBlock(worldState: WorldState): Bool {
 		var hadValidBlockRows: Bool = false;
 
+		if (currentBlock.y >= worldState.getGridRows()) {
+			trace("Current block isn't valid!! " + currentBlock.y);
+			return false;
+		}
+
 		for (y2 in 0...currentBlock.height) {
 			var blockRowY = ((currentBlock.y + y2));
 			if (blockRowY < worldState.getGridRows()) {
@@ -408,6 +413,7 @@ class GridScreenController implements IGridScreenController {
 			if ((currentBlock.x + currentBlock.width) > worldState.getGridColumns()) {
 				currentBlock.x = worldState.getGridColumns() - currentBlock.width;
 			}
+			trace("Generated new block! " + currentBlock.y);
 		}
 	}
 
