@@ -40,7 +40,9 @@ class GridScreenController implements IGridScreenController {
 		var generators: Array<Dynamic> = new Array();
 
 		generators.push(function(data: Array<Int>, orientation: Int): Void {
-			while (data.length > 0) { data.pop(); }
+			while (data.length > 0) {
+				data.pop();
+			}
 			// o, i - easy, never rotate.
 			data.push(1);
 			data.push(1);
@@ -48,7 +50,9 @@ class GridScreenController implements IGridScreenController {
 			data.push(1);
 		});
 		generators.push(function(data: Array<Int>, orientation: Int): Void {
-			while (data.length > 0) { data.pop(); }
+			while (data.length > 0) {
+				data.pop();
+			}
 			switch (orientation) { //z
 			case 0, 2:
 				data.push(1);data.push(1);data.push(0);
@@ -60,7 +64,9 @@ class GridScreenController implements IGridScreenController {
 			}
 		});
 		generators.push(function(data: Array<Int>, orientation: Int): Void {
-			while (data.length > 0) { data.pop(); }
+			while (data.length > 0) {
+				data.pop();
+			}
 			switch (orientation) { // s
 				case 0, 2:
 					data.push(0);data.push(1);data.push(1);
@@ -72,7 +78,9 @@ class GridScreenController implements IGridScreenController {
 			}
 		});
 		generators.push(function(data: Array<Int>, orientation: Int): Void {
-			while (data.length > 0) { data.pop(); }
+			while (data.length > 0) {
+				data.pop();
+			}
 			switch (orientation) { // l
 				case 0:
 					data.push(1);data.push(0);
@@ -91,7 +99,9 @@ class GridScreenController implements IGridScreenController {
 			}
 		});
 		generators.push(function(data: Array<Int>, orientation: Int): Void {
-			while (data.length > 0) { data.pop(); }
+			while (data.length > 0) {
+				data.pop();
+			}
 			switch (orientation) { // j
 				case 0:
 					data.push(0);data.push(1);
@@ -110,7 +120,9 @@ class GridScreenController implements IGridScreenController {
 			}
 		});
 		generators.push(function(data: Array<Int>, orientation: Int): Void {
-			while (data.length > 0) { data.pop(); }
+			while (data.length > 0) {
+				data.pop();
+			}
 			switch (orientation) { // t
 				case 0:
 					data.push(1);data.push(1);data.push(1);
@@ -141,11 +153,20 @@ class GridScreenController implements IGridScreenController {
 			block.generator(block.data, block.orientation);
 		}
 
-		currentBlock = {width: 3, height: 2, orientation: 0, x: 0, y: 0, col: 0xF0F0FF, generator: generators[5], data: new Array()};
+		currentBlock = {
+			width: 3, height: 2,
+			orientation: 0,
+			x: 0,
+			y: 0,
+			col: 0xF0F0FF,
+			generator: generators[5],
+			data: new Array()
+		};
 		blockCopy(blockTypes[0], currentBlock);
 	}
 
 	public function render(worldState: WorldState): Void {}
+
 	public function update(worldState: WorldState): Void {
 		// When in auto mode, collission detection is off - so blocks float all the way down the screen.
 		--frameCounter;
@@ -158,11 +179,13 @@ class GridScreenController implements IGridScreenController {
 			}
 		}
 	}
+
 	public function outputDebug(worldState: WorldState): Void {}
 	public function resize (newWidth: Int, newHeight: Int): Void {}
 
-	private function dropGridRow(worldState: WorldState, rowToDrop: Int) {
-		var startRow: Int = rowToDrop;
+	private function shiftGridColumnsDown(worldState: WorldState, rowToRemove: Int) {
+		var startRow: Int = rowToRemove;
+
 		while (startRow > 0) {
 			for (x in 0...worldState.getGridColumns()) {
 				var gridIndex = startRow * worldState.getGridColumns() + x;
@@ -178,7 +201,6 @@ class GridScreenController implements IGridScreenController {
 		var y = 0;
 
 		while (y < worldState.getGridRows()) {
-
 			var isGridRowFull: Bool = true;
 			for (x in 0...worldState.getGridColumns()) {
 				var gridIndex = y * worldState.getGridColumns() + x;
@@ -187,7 +209,7 @@ class GridScreenController implements IGridScreenController {
 
 			if (isGridRowFull) {
 				trace("Grid row is full!! " + y);
-				dropGridRow(worldState, y);
+				shiftGridColumnsDown(worldState, y);
 				userStuckCounter = 0;
 				++rowsScore;
 				y = 0; // restart loop to continue checking after rows have been dropped.
@@ -199,7 +221,9 @@ class GridScreenController implements IGridScreenController {
 		// Check if the game has ended by traversing the topmost row of cells to see if any are filled.
 		var isGridColumnFull: Bool = false;
 		for (x in 0...worldState.getGridColumns()) {
-				if (grid[x] != 0) { isGridColumnFull = true; }
+				if (grid[x] != 0) {
+					isGridColumnFull = true;
+				}
 
 			if (isGridColumnFull) {
 				trace("Looks like the game has ended");
@@ -235,14 +259,18 @@ class GridScreenController implements IGridScreenController {
 	}
 
 	public function shouldTransition(worldState: WorldState): Bool {
-		if (autoMode) return false;
+		if (autoMode) {
+			return false;
+		}
 
 		return userIsStuck;
 	}
 
 	// First alter the block coordinates, then call this function.
 	private function canMoveBlockToPosition(worldState: WorldState, block: Block): Bool {
-		if (autoMode) { return true; } // In auto mode blocks fall "forever"
+		if (autoMode) {
+			return true; // In auto mode blocks fall "forever"
+		}
 
 		if (block.y + (block.height - 1) > (worldState.getGridRows() - 1)) {
 			return false;
@@ -254,7 +282,9 @@ class GridScreenController implements IGridScreenController {
 				var worldGridBlockStatus = grid[blockIdx];
 				var localGridBlockStatus = block.data[(y * block.width) + x];
 				
-				if (worldGridBlockStatus == 0 && localGridBlockStatus == 0) { continue; }
+				if (worldGridBlockStatus == 0 && localGridBlockStatus == 0) {
+					continue;
+				}
 
 				if (worldGridBlockStatus != 0 && localGridBlockStatus != 0) {
 					return false;
@@ -264,8 +294,11 @@ class GridScreenController implements IGridScreenController {
 
 		return true;
 	}
+
 	private function moveLeft(worldState: WorldState): Bool {
-		if (currentBlock.x == 0) return false;
+		if (currentBlock.x == 0) {
+			return false;
+		}
 
 		var block: Block = {width: currentBlock.width, height: currentBlock.height,
 		orientation: currentBlock.orientation, x: currentBlock.x, y: currentBlock.y, col: currentBlock.col,
@@ -281,14 +314,22 @@ class GridScreenController implements IGridScreenController {
 		}
 		return canMoveLeft;
 	}
+
 	private function moveRight(worldState: WorldState): Bool {
 		if (currentBlock.x + (currentBlock.width - 1) == worldState.getGridColumns() - 1) {
 			return false;
 		}
 
-		var block: Block = {width: currentBlock.width, height: currentBlock.height,
-		orientation: currentBlock.orientation, x: currentBlock.x, y: currentBlock.y, col: currentBlock.col,
-		generator: currentBlock.generator, data: new Array()};
+		var block: Block = {
+			width: currentBlock.width,
+			height: currentBlock.height,
+			orientation: currentBlock.orientation,
+			x: currentBlock.x,
+			y: currentBlock.y,
+			col: currentBlock.col,
+			generator: currentBlock.generator,
+			data: new Array()
+		};
 
 		blockCopy(currentBlock, block);
 
@@ -300,6 +341,7 @@ class GridScreenController implements IGridScreenController {
 		}
 		return canMoveRight;
 	}
+
 	private function moveDown(worldState: WorldState): Bool {
 		if (autoMode) {
 			// Remember to actually advance block if we are taking the autoMode shortcut.
@@ -340,12 +382,13 @@ class GridScreenController implements IGridScreenController {
 
 		block.generator(block.data, block.orientation);
 
-		var blockInsideBoundsWidth =  ((block.x + block.width) <= worldState.getGridColumns() - 1);
+		var blockInsideBoundsWidth =  ((block.x + block.width - 1) <= worldState.getGridColumns() - 1);
 
 		if (canMoveBlockToPosition(worldState, block) && blockInsideBoundsWidth) {
 			blockCopy(block, currentBlock);
 		}
 	}
+
 	private function eraseBlock(worldState: WorldState) {
 		for (y in 0...currentBlock.height) {
 			var blockRowY = ((currentBlock.y + y));
@@ -359,6 +402,7 @@ class GridScreenController implements IGridScreenController {
 			}
 		}
 	}
+
 	private function drawBlock(worldState: WorldState): Bool {
 		var hadValidBlockRows: Bool = false;
 
@@ -383,6 +427,7 @@ class GridScreenController implements IGridScreenController {
 
 		return hadValidBlockRows;
 	}
+
 	private function advanceBlock(worldState: WorldState) {
 		// The user is playing - consume input.
 		var lastKey = worldState.consumeKeyPress();

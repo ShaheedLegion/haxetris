@@ -18,7 +18,7 @@ class WorldState implements IResizeable {
 	private var touchRegistered: Bool; // Is user touching screen?
 	private var touchBeginPoint: Point; //Point where touch started.
 	private var touchEndPoint: Point; // Point where touch gesture ended.
-	private var keyPressed: Int; // The key that was pressed.
+	private var keyPressed: Array<Int>; // The key that was pressed.
 
 	@:allow(HaxeTris)
 	private function new(gw: Int, gh: Int, w: Int, h: Int) {
@@ -30,6 +30,7 @@ class WorldState implements IResizeable {
 		displayHeight = h;
 		gridPixelWidth = w;
 		gridPixelHeight = h;
+		keyPressed = new Array();
 		canvas = new Sprite();
 
 		canvas.graphics.beginFill (0xFF0000, 1);
@@ -41,6 +42,7 @@ class WorldState implements IResizeable {
 	@:allow(HaxeTris, GridScreen)
 	private function getCanvas(): Sprite { return canvas; }
 
+	// Get a canvas with properties that have been cleared.
 	public function getPreparedCanvas(): Sprite {
 		canvas.graphics.clear();
 		canvas.scaleX = 1;
@@ -111,7 +113,7 @@ class WorldState implements IResizeable {
 
 	@:allow(HaxeTris)
 	private function setKeyPressed(key: Int) {
-		keyPressed = key;
+		keyPressed.push(key);
 	}
 	@:allow(HaxeTris)
 	private function setTouchStarted(x: Float, y: Float) {
@@ -127,10 +129,8 @@ class WorldState implements IResizeable {
 	}
 
 	// Any listeners asking for the key will 'Consume' the key press.
-	// It's a simpler method than trying to queue key presses.
 	public function consumeKeyPress(): Int {
-		var pressedKey = keyPressed;
-		keyPressed = -1;
-		return pressedKey;
+		if (keyPressed.length == 0) return -1;
+		return keyPressed.shift();
 	}
 }

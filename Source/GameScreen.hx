@@ -49,7 +49,6 @@ class GameScreen implements IGameScreenObject {
 	public function enterGameScreen(worldState: WorldState): Void {
 		// The player has started the game.
 		// Init the grid - again.
-		// Since the grid is the main component of haxtris.
 		worldState.getGridController().setAutoMode(false);
 		worldState.getPreparedCanvas().addChild(text);
 	}
