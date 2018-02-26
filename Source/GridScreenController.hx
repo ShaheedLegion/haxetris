@@ -23,6 +23,8 @@ class GridScreenController implements IGridScreenController {
 	private var rowsScore: Int = 0;
 	private var userIsStuck: Bool;
 	private var userStuckCounter: Int = 0;
+	private var blockHit: Bool = false;
+	private var consumedRows: Bool = false;
 
 	public function new(worldState: WorldState) {
 		autoMode = true;
@@ -211,6 +213,7 @@ class GridScreenController implements IGridScreenController {
 			if (isGridRowFull) {
 				trace("Grid row is full!! " + y);
 				shiftGridColumnsDown(worldState, y);
+				consumedRows = true;
 				userStuckCounter = 0;
 				++rowsScore;
 				y = 0; // restart loop to continue checking after rows have been dropped.
@@ -449,6 +452,7 @@ class GridScreenController implements IGridScreenController {
 
 		var isStillValidBlock = (autoMode ? isBlockStillVisible : canBlockAdvance);
 		if (!isStillValidBlock) {
+			blockHit = true;
 			// Mark block for deletion.
 			var newBlockType: Int = Std.int(Math.random() * blockTypes.length);
 
@@ -482,5 +486,17 @@ class GridScreenController implements IGridScreenController {
 
 	public function getScore(): Int {
 		return rowsScore;
+	}
+
+	public function hadCollision(): Bool {
+		var previousCollisionValue = blockHit;
+		blockHit = false;
+		return previousCollisionValue;
+	}
+
+	public function hadRowScore(): Bool {
+		var previousHadRowScore = consumedRows;
+		consumedRows = false;
+		return previousHadRowScore;
 	}
 }

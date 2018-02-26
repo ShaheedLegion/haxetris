@@ -8,8 +8,10 @@ class StartScreen implements IGameScreenObject {
 
 	private var textFormat: TextFormat = new TextFormat();
 	private var text: TextField = new TextField();
+	private var soundId: Int;
+	private var soundManager: SoundManager;
 
-	public function new(worldState: WorldState) {
+	public function new(worldState: WorldState, soundMan: SoundManager) {
 		var textFormat:TextFormat = new TextFormat();
 		textFormat.font = "Arial";
 		textFormat.size = 18;
@@ -34,6 +36,9 @@ class StartScreen implements IGameScreenObject {
 		//textString += " Hit SpaceBar or swipe up to start.";
 
 		text.text = textString;
+
+		soundManager = soundMan;
+		soundId = soundMan.addSound("assets/korobeiniki_start.mp3");
 	}
 
 	public function resize (newWidth: Int, newHeight: Int): Void {}
@@ -61,10 +66,12 @@ class StartScreen implements IGameScreenObject {
 	public function enterGameScreen(worldState: WorldState): Void {
 		worldState.getPreparedCanvas().addChild(text);
 		worldState.getGridController().setAutoMode(true);
+		soundManager.playSound(soundId, 0);
 	}
 
 	public function exitGameScreen(worldState: WorldState): Void {
 		worldState.getPreparedCanvas().removeChild(text);
+		soundManager.stopSound(soundId);
 	}
 
 	public function shouldTransition(worldState: WorldState): Bool {

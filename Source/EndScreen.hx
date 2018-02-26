@@ -8,8 +8,10 @@ class EndScreen implements IGameScreenObject {
 
 	private var textFormat: TextFormat = new TextFormat();
 	private var text: TextField = new TextField();
+	private var soundId: Int;
+	private var soundManager: SoundManager;
 
-	public function new(worldState: WorldState) {
+	public function new(worldState: WorldState, soundMan: SoundManager) {
 		var textFormat:TextFormat = new TextFormat();
 		textFormat.font = "Arial";
 		textFormat.size = 18;
@@ -27,6 +29,8 @@ class EndScreen implements IGameScreenObject {
 		textString += " in order to play again! \r\r";
 
 		text.text = textString;
+		soundManager = soundMan;
+		soundId = soundMan.addSound("assets/korobeiniki_end.mp3");
 	}
 
 	public function resize (newWidth: Int, newHeight: Int): Void {}
@@ -53,10 +57,12 @@ class EndScreen implements IGameScreenObject {
 	public function enterGameScreen(worldState: WorldState): Void {
 		worldState.getPreparedCanvas().addChild(text);
 		worldState.getGridController().setAutoMode(true);
+		soundManager.playSound(soundId, 1000);
 	}
 
 	public function exitGameScreen(worldState: WorldState): Void {
 		worldState.getPreparedCanvas().removeChild(text);
+		soundManager.stopSound(soundId);
 	}
 
 	public function shouldTransition(worldState: WorldState): Bool {
