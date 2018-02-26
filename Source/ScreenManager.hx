@@ -2,12 +2,14 @@ class ScreenManager implements IGameObject {
 
 	private var gameScreens: Array<IGameScreenObject>;
 	private var currentScreen: Int;
+	private var soundManager: SoundManager;
 
 	public function new(worldState: WorldState) {
 		gameScreens = new Array();
-		gameScreens.push(new StartScreen(worldState));
-		gameScreens.push(new GameScreen(worldState));
-		gameScreens.push(new EndScreen(worldState));
+		soundManager = new SoundManager();
+		gameScreens.push(new StartScreen(worldState, soundManager));
+		gameScreens.push(new GameScreen(worldState, soundManager));
+		gameScreens.push(new EndScreen(worldState, soundManager));
 		currentScreen = 0;
 
 		gameScreens[currentScreen].enterGameScreen(worldState);

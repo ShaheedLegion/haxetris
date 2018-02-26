@@ -8,4 +8,6 @@ interface IGridScreenController extends IGameObject {
 	public function setAutoMode(auto: Bool): Void;
 	public function shouldTransition(worldState: WorldState): Bool;
 	public function getScore(): Int;
+	public function hadCollision(): Bool;
+	public function hadRowScore(): Bool;
 }
