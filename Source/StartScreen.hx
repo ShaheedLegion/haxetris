@@ -25,6 +25,8 @@ class StartScreen implements IGameScreenObject {
 		textString += " Use SpaceBar to start \r";
 		textString += " Up arrow to rotate \r";
 		textString += " Left and Right Arrows to move. \r";
+
+		// TODO - Add mobile support for next release.
 		//textString += " Down to drop your block. \r\r";
 
 		// TODO - Add + test mobile support.
@@ -51,6 +53,7 @@ class StartScreen implements IGameScreenObject {
 		(worldState.getGridWidth() / 2) - (text.width / 2);
 		text.y = worldState.getGridY() + 50;
 	}
+
 	public function outputDebug(worldState: WorldState): Void {
 		worldState.getGridScreen().outputDebug(worldState);
 	}
@@ -59,16 +62,13 @@ class StartScreen implements IGameScreenObject {
 		worldState.getPreparedCanvas().addChild(text);
 		worldState.getGridController().setAutoMode(true);
 	}
+
 	public function exitGameScreen(worldState: WorldState): Void {
 		worldState.getPreparedCanvas().removeChild(text);
 	}
+
 	public function shouldTransition(worldState: WorldState): Bool {
 		// Check the key state to see if we should transition.
-		var lastKey = worldState.consumeKeyPress();
-		if (lastKey == 32) {
-			return true;
-		}
-
-		return false;
+		return (worldState.consumeKeyPress() == 32);
 	}
 }

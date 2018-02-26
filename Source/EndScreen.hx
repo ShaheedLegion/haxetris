@@ -38,14 +38,14 @@ class EndScreen implements IGameScreenObject {
 
 		worldState.getGridScreen().render(worldState);
 	}
+
 	public function update(worldState: WorldState): Void {
 		worldState.getGridScreen().update(worldState);
 		text.x = worldState.getGridX() +
 		(worldState.getGridWidth() / 2) - (text.width / 2);
 		text.y = worldState.getGridY() + 50;
-
-		// TODO - scaling to match grid width / height.
 	}
+
 	public function outputDebug(worldState: WorldState): Void {
 		worldState.getGridScreen().outputDebug(worldState);
 	}
@@ -54,14 +54,13 @@ class EndScreen implements IGameScreenObject {
 		worldState.getPreparedCanvas().addChild(text);
 		worldState.getGridController().setAutoMode(true);
 	}
+
 	public function exitGameScreen(worldState: WorldState): Void {
 		worldState.getPreparedCanvas().removeChild(text);
 	}
+
 	public function shouldTransition(worldState: WorldState): Bool {
 		// Check the key state to see if we should transition.
-		var lastKey = worldState.consumeKeyPress();
-		if (lastKey == 32) return true;
-
-		return false;
+		return (worldState.consumeKeyPress() == 32);
 	}
 }

@@ -20,9 +20,12 @@ class GridScreenController implements IGridScreenController {
 	private var MOVE_RIGHT: Int = 39;
 	private var ROTATE: Int = 38;
 	private var rowsScore: Int = 0;
+	private var userIsStuck: Bool;
+	private var userStuckCounter: Int = 0;
 
 	public function new(worldState: WorldState) {
 		autoMode = true;
+		userIsStuck = false;
 		frameCounter = frameSkip;
 
 		grid = new Array();
@@ -32,8 +35,6 @@ class GridScreenController implements IGridScreenController {
 			grid.push(0);
 			--numGridLocations;
 		}
-
-		trace("Number of items in grid - " + grid.length);
 
 		blockTypes = new Array();
 		var generators: Array<Dynamic> = new Array();
@@ -49,13 +50,10 @@ class GridScreenController implements IGridScreenController {
 		generators.push(function(data: Array<Int>, orientation: Int): Void {
 			while (data.length > 0) { data.pop(); }
 			switch (orientation) { //z
-			case 0:
-			case 2:
+			case 0, 2:
 				data.push(1);data.push(1);data.push(0);
 				data.push(0);data.push(1);data.push(1);
-
-			case 1:
-			case 3:
+			case 1, 3:
 				data.push(0);data.push(1);
 				data.push(1);data.push(1);
 				data.push(1);data.push(0);
@@ -64,12 +62,10 @@ class GridScreenController implements IGridScreenController {
 		generators.push(function(data: Array<Int>, orientation: Int): Void {
 			while (data.length > 0) { data.pop(); }
 			switch (orientation) { // s
-				case 0:
-				case 2:
+				case 0, 2:
 					data.push(0);data.push(1);data.push(1);
 					data.push(1);data.push(1);data.push(0);
-				case 1:
-				case 3:
+				case 1, 3:
 					data.push(1);data.push(0);
 					data.push(1);data.push(1);
 					data.push(0);data.push(1);
@@ -133,13 +129,13 @@ class GridScreenController implements IGridScreenController {
 			}
 		});
 		generators.push(function(data: Array<Int>): Void {});
-		blockTypes.push({width: 2, height: 2, orientation: 0, x: 0, y: 0, col: 0xF0F0FF, generator: generators[0], data: new Array()});
-		blockTypes.push({width: 3, height: 2, orientation: 0, x: 0, y: 0, col: 0xF0F0FF, generator: generators[1], data: new Array()});
-		blockTypes.push({width: 3, height: 2, orientation: 0, x: 0, y: 0, col: 0xF0F0FF, generator: generators[2], data: new Array()});
-		blockTypes.push({width: 1, height: 4, orientation: 0, x: 0, y: 0, col: 0xF0F0FF, generator: generators[0], data: new Array()});
-		blockTypes.push({width: 2, height: 3, orientation: 0, x: 0, y: 0, col: 0xF0F0FF, generator: generators[3], data: new Array()});
-		blockTypes.push({width: 2, height: 3, orientation: 0, x: 0, y: 0, col: 0xF0F0FF, generator: generators[4], data: new Array()});
-		blockTypes.push({width: 3, height: 2, orientation: 0, x: 0, y: 0, col: 0xF0F0FF, generator: generators[5], data: new Array()});
+		blockTypes.push({width: 2, height: 2, orientation: 0, x: 0, y: 0, col: 0x00FFFF, generator: generators[0], data: new Array()});
+		blockTypes.push({width: 3, height: 2, orientation: 0, x: 0, y: 0, col: 0x0000FF, generator: generators[1], data: new Array()});
+		blockTypes.push({width: 3, height: 2, orientation: 0, x: 0, y: 0, col: 0xFFF000, generator: generators[2], data: new Array()});
+		blockTypes.push({width: 1, height: 4, orientation: 0, x: 0, y: 0, col: 0x00FF00, generator: generators[0], data: new Array()});
+		blockTypes.push({width: 2, height: 3, orientation: 0, x: 0, y: 0, col: 0xFFA500, generator: generators[3], data: new Array()});
+		blockTypes.push({width: 2, height: 3, orientation: 0, x: 0, y: 0, col: 0xFFFF00, generator: generators[4], data: new Array()});
+		blockTypes.push({width: 3, height: 2, orientation: 0, x: 0, y: 0, col: 0x551A8B, generator: generators[5], data: new Array()});
 
 		for (block in blockTypes) {
 			block.generator(block.data, block.orientation);
@@ -155,6 +151,7 @@ class GridScreenController implements IGridScreenController {
 		--frameCounter;
 		if (frameCounter <= 0) {
 			advanceBlock(worldState);
+
 			frameCounter = frameSkip;
 			if (!autoMode) {
 				gridSweep(worldState);
@@ -175,14 +172,13 @@ class GridScreenController implements IGridScreenController {
 			--startRow;
 		}
 	}
-	private function gridSweep(worldState: WorldState) {
-		// check the grid for any complete rows.
-		// need to figure a way around checking the current block.
-		// Work from the bottom of the grid upwards.
-		eraseBlock(worldState);
-		var filledRows: Array<Int> = new Array();
 
-		for (y in 0...worldState.getGridRows()) {
+	private function gridSweep(worldState: WorldState) {
+		eraseBlock(worldState);
+		var y = 0;
+
+		while (y < worldState.getGridRows()) {
+
 			var isGridRowFull: Bool = true;
 			for (x in 0...worldState.getGridColumns()) {
 				var gridIndex = y * worldState.getGridColumns() + x;
@@ -191,19 +187,31 @@ class GridScreenController implements IGridScreenController {
 
 			if (isGridRowFull) {
 				trace("Grid row is full!! " + y);
-				filledRows.push(y);
+				dropGridRow(worldState, y);
+				userStuckCounter = 0;
 				++rowsScore;
+				y = 0; // restart loop to continue checking after rows have been dropped.
+				continue;
 			}
+			++y;
 		}
 
-		if (rowsScore > 0) {
-			trace("Got grid score - " + rowsScore);
-			for (rowToErase in filledRows) {
-				dropGridRow(worldState, rowToErase);
+		// Check if the game has ended by traversing the topmost row of cells to see if any are filled.
+		var isGridColumnFull: Bool = false;
+		for (x in 0...worldState.getGridColumns()) {
+				if (grid[x] != 0) { isGridColumnFull = true; }
+
+			if (isGridColumnFull) {
+				trace("Looks like the game has ended");
+				++userStuckCounter;
 			}
 		}
-
 		drawBlock(worldState);
+		
+		// If the topmost row stays 'filled' for 3 turns, then the user has died.
+		if (userStuckCounter > 3) {
+			userIsStuck = true;
+		}
 	}
 
 	public function getGridRepresentation(): Array<Int> {
@@ -220,32 +228,29 @@ class GridScreenController implements IGridScreenController {
 		currentBlock.orientation = 0;
 		currentBlock.x = 0;
 		currentBlock.y = 0;
+		currentBlock.generator(currentBlock.data, currentBlock.orientation);
+		rowsScore = 0;
+		userIsStuck = false;
+		userStuckCounter = 0;
 	}
 
 	public function shouldTransition(worldState: WorldState): Bool {
 		if (autoMode) return false;
 
-		// Else, perform checks to see if the user has gotten stuck.
-
-		return false;
+		return userIsStuck;
 	}
 
-	private function canAdvanceBlock(worldState: WorldState, block: Block): Bool {
-		if (autoMode) return true; // In auto mode blocks fall "forever"
+	// First alter the block coordinates, then call this function.
+	private function canMoveBlockToPosition(worldState: WorldState, block: Block): Bool {
+		if (autoMode) { return true; } // In auto mode blocks fall "forever"
 
-		var blockRowY = block.y;
-		var newBlockY = blockRowY + 1;
-		if ((blockRowY + (block.height - 1)) == worldState.getGridRows() - 1) {
+		if (block.y + (block.height - 1) > (worldState.getGridRows() - 1)) {
 			return false;
 		}
 
-		if ((newBlockY + (block.height - 1)) == worldState.getGridRows()) {
-			return false;
-		}
-
-		for (x in 0...block.width) {
-			for (y in 0...block.height) {
-				var blockIdx = ((newBlockY + y) * worldState.getGridColumns()) + (block.x + x);
+		for (y in 0...block.height) {
+			for (x in 0...block.width) {
+				var blockIdx = ((block.y + y) * worldState.getGridColumns()) + (block.x + x);
 				var worldGridBlockStatus = grid[blockIdx];
 				var localGridBlockStatus = block.data[(y * block.width) + x];
 				
@@ -259,62 +264,69 @@ class GridScreenController implements IGridScreenController {
 
 		return true;
 	}
-	private function moveLeft(worldState: WorldState) {
-		if (currentBlock.x == 0) return;
+	private function moveLeft(worldState: WorldState): Bool {
+		if (currentBlock.x == 0) return false;
 
-		var canMoveLeft: Bool = true;
-		for (y in 0...currentBlock.height) {
-			var blockRowY = ((currentBlock.y + y));
-			if (blockRowY < worldState.getGridRows()) {
-				var blockIdx = blockRowY  * worldState.getGridColumns();
-				var newBlockX = currentBlock.x - 1;
+		var block: Block = {width: currentBlock.width, height: currentBlock.height,
+		orientation: currentBlock.orientation, x: currentBlock.x, y: currentBlock.y, col: currentBlock.col,
+		generator: currentBlock.generator, data: new Array()};
 
-				var worldGridBlockStatus = grid[blockIdx + newBlockX];
-				var localGridBlockStatus = currentBlock.data[y * currentBlock.width];
-				if (worldGridBlockStatus == 0) { continue; }
-				if (localGridBlockStatus == 0) { continue; }
+		blockCopy(currentBlock, block);
 
-				if (worldGridBlockStatus != 0 && localGridBlockStatus != 0) {
-					canMoveLeft = false;
-				}
-			}
-		}
+		--block.x;
+		var canMoveLeft: Bool = canMoveBlockToPosition(worldState, block);
+
 		if (canMoveLeft) {
-			eraseBlock(worldState);
 			--currentBlock.x;
 		}
+		return canMoveLeft;
 	}
-	private function moveRight(worldState: WorldState) {
+	private function moveRight(worldState: WorldState): Bool {
 		if (currentBlock.x + (currentBlock.width - 1) == worldState.getGridColumns() - 1) {
-			return;
+			return false;
 		}
 
-		var canMoveRight: Bool = true;
-		for (y in 0...currentBlock.height) {
-			var blockRowY = ((currentBlock.y + y));
-			if (blockRowY < worldState.getGridRows()) {
-				var blockIdx = blockRowY  * worldState.getGridColumns();
-				var newBlockX = currentBlock.x + currentBlock.width + 1;
+		var block: Block = {width: currentBlock.width, height: currentBlock.height,
+		orientation: currentBlock.orientation, x: currentBlock.x, y: currentBlock.y, col: currentBlock.col,
+		generator: currentBlock.generator, data: new Array()};
 
-				var worldGridBlockStatus = grid[blockIdx + newBlockX];
-				var localGridBlockStatus = currentBlock.data[(y * currentBlock.width) + currentBlock.width - 1];
-				if (worldGridBlockStatus == 0) { continue; }
-				if (localGridBlockStatus == 0) { continue; }
+		blockCopy(currentBlock, block);
 
-				if (worldGridBlockStatus != 0 && localGridBlockStatus != 0) {
-					canMoveRight = false;
-				}
-			}
-		}
+		++block.x;
+		var canMoveRight: Bool = canMoveBlockToPosition(worldState, block);
+
 		if (canMoveRight) {
-			eraseBlock(worldState);
 			++currentBlock.x;
 		}
+		return canMoveRight;
+	}
+	private function moveDown(worldState: WorldState): Bool {
+		if (autoMode) {
+			// Remember to actually advance block if we are taking the autoMode shortcut.
+			++currentBlock.y;
+			return true;
+		}
+		if (currentBlock.y + (currentBlock.height - 1) == worldState.getGridRows() - 1) {
+			return false;
+		}
+
+		var block: Block = {width: currentBlock.width, height: currentBlock.height,
+		orientation: currentBlock.orientation, x: currentBlock.x, y: currentBlock.y, col: currentBlock.col,
+		generator: currentBlock.generator, data: new Array()};
+
+		blockCopy(currentBlock, block);
+
+		++block.y;
+		var canMoveDown: Bool = canMoveBlockToPosition(worldState, block);
+
+		if (canMoveDown) {
+			++currentBlock.y;
+		}
+		return canMoveDown;
 	}
 
 	private function rotateBlock(worldState: WorldState) {
-		// rotate the current block - if possible.
-		
+		// rotate the current block - if possible to do so at this location.
 		var block: Block = {width: currentBlock.width, height: currentBlock.height,
 		orientation: currentBlock.orientation, x: currentBlock.x, y: currentBlock.y, col: currentBlock.col,
 		generator: currentBlock.generator, data: new Array()};
@@ -327,15 +339,13 @@ class GridScreenController implements IGridScreenController {
 		block.height = oldWidth;
 
 		block.generator(block.data, block.orientation);
-		--block.y; // move the block backwards to see if it can rotate in place.
 
-		eraseBlock(worldState);
-		if (canAdvanceBlock(worldState, block)) {
+		var blockInsideBoundsWidth =  ((block.x + block.width) <= worldState.getGridColumns() - 1);
+
+		if (canMoveBlockToPosition(worldState, block) && blockInsideBoundsWidth) {
 			blockCopy(block, currentBlock);
 		}
-		drawBlock(worldState);
 	}
-
 	private function eraseBlock(worldState: WorldState) {
 		for (y in 0...currentBlock.height) {
 			var blockRowY = ((currentBlock.y + y));
@@ -353,7 +363,6 @@ class GridScreenController implements IGridScreenController {
 		var hadValidBlockRows: Bool = false;
 
 		if (currentBlock.y >= worldState.getGridRows()) {
-			trace("Current block isn't valid!! " + currentBlock.y);
 			return false;
 		}
 
@@ -365,7 +374,7 @@ class GridScreenController implements IGridScreenController {
 				for (x2 in 0...currentBlock.width) {
 					var currentBlockDataIdx = y2 * currentBlock.width + x2;
 
-					if ( currentBlock.data[currentBlockDataIdx] == 1) {
+					if (currentBlock.data[currentBlockDataIdx] == 1) {
 						grid[blockIdx + currentBlock.x + x2] = currentBlock.col;
 					}
 				}
@@ -378,6 +387,7 @@ class GridScreenController implements IGridScreenController {
 		// The user is playing - consume input.
 		var lastKey = worldState.consumeKeyPress();
 
+		eraseBlock(worldState); // clear the block off the grid first.
 		if (lastKey == MOVE_LEFT) {
 			moveLeft(worldState);
 		} else if (lastKey == MOVE_RIGHT) {
@@ -386,34 +396,24 @@ class GridScreenController implements IGridScreenController {
 			rotateBlock(worldState);
 		}
 
-		eraseBlock(worldState);
-		var canBlockAdvance: Bool = canAdvanceBlock(worldState, currentBlock);
-		var isStillValidBlock: Bool = true;
-		if (autoMode || canBlockAdvance) {
-			eraseBlock(worldState);
-			currentBlock.y++;
+		var canBlockAdvance: Bool = moveDown(worldState);
+		var isBlockStillVisible: Bool = drawBlock(worldState);
 
-			isStillValidBlock = drawBlock(worldState);
-		}
-
-		if (!autoMode && !canBlockAdvance) {
-			// Do not erase the current block position.
-			drawBlock(worldState);
-			isStillValidBlock = false;
-		}
-
+		var isStillValidBlock = (autoMode ? isBlockStillVisible : canBlockAdvance);
 		if (!isStillValidBlock) {
 			// Mark block for deletion.
-			blockCopy(blockTypes[Std.int(Math.random() * blockTypes.length)], currentBlock);
+			var newBlockType: Int = Std.int(Math.random() * blockTypes.length);
+
+			blockCopy(blockTypes[newBlockType], currentBlock);
 			currentBlock.x = Std.int(Math.random() * worldState.getGridColumns());
 			currentBlock.y = 0;
 			currentBlock.orientation = 0;
+
 			currentBlock.generator(currentBlock.data, currentBlock.orientation);
 
 			if ((currentBlock.x + currentBlock.width) > worldState.getGridColumns()) {
 				currentBlock.x = worldState.getGridColumns() - currentBlock.width;
 			}
-			trace("Generated new block! " + currentBlock.y);
 		}
 	}
 
@@ -426,7 +426,10 @@ class GridScreenController implements IGridScreenController {
 		to.col = from.col; // color of block type.
 		to.generator = from.generator; // generator function.
 		to.data = new Array(); // generated data from given generator function.
-		to.generator(to.data, from.orientation);
+		to.generator(to.data, to.orientation);
+		if (to.data.length == 0) {
+			throw ("BlockCopy to data length was 0 " + to.orientation);
+		}
 	}
 
 	public function getScore(): Int {

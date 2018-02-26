@@ -2,6 +2,7 @@ import openfl.display.Sprite;
 import openfl.events.Event;
 import openfl.events.KeyboardEvent;
 import openfl.events.TouchEvent;
+import openfl.display.FPS;
 
 class HaxeTris extends Sprite implements IResizeable {
 
@@ -15,8 +16,9 @@ class HaxeTris extends Sprite implements IResizeable {
 	}
 
 	public function init() {
-		//Background.filters = [ new BlurFilter (10, 10) ];
 		addChild (worldState.getCanvas());
+		var fps:FPS = new FPS(10, 10, 0xffffff);
+		addChild(fps);
 
 		screenManager = new ScreenManager(worldState);
 
@@ -28,7 +30,6 @@ class HaxeTris extends Sprite implements IResizeable {
 		stage.addEventListener(TouchEvent.TOUCH_END, onTouchEnd);
 	}
 
-	// IResizeable
 	public function resize (newWidth: Int, newHeight: Int): Void {
 		worldState.resize(newWidth, newHeight);
 		screenManager.resize(newWidth, newHeight);
