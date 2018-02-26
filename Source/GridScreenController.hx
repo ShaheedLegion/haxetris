@@ -17,8 +17,9 @@ class GridScreenController implements IGridScreenController {
 	private var frameSkip: Int = 16;
 	private var frameCounter: Int;
 	private var MOVE_LEFT: Int = 37;
-	private var MOVE_RIGHT: Int = 39;
 	private var ROTATE: Int = 38;
+	private var MOVE_RIGHT: Int = 39;
+	private var MOVE_DOWN: Int = 40;
 	private var rowsScore: Int = 0;
 	private var userIsStuck: Bool;
 	private var userStuckCounter: Int = 0;
@@ -439,6 +440,8 @@ class GridScreenController implements IGridScreenController {
 			moveRight(worldState);
 		} else if (lastKey == ROTATE) {
 			rotateBlock(worldState);
+		} else if (lastKey == MOVE_DOWN) {
+			moveDown(worldState);
 		}
 
 		var canBlockAdvance: Bool = moveDown(worldState);
