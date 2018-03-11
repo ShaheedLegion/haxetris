@@ -63,8 +63,7 @@ class GameScreen implements IGameScreenObject {
 
 	public function enterGameScreen(worldState: WorldState): Void {
 		// The player has started the game.
-		// Init the grid - again.
-		worldState.getGridController().setAutoMode(false);
+		worldState.getGridController().setAutoMode(false);		// Init the grid - again.
 		worldState.getPreparedCanvas().addChild(text);
 		soundManager.playSound(soundId, 1000);
 	}
