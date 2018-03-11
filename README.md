@@ -31,10 +31,13 @@ for anyone wanting to fork the code to add in their own pretty images.
 Mostly OOP - some procedural stuff thrown in, strives to use MVC where beneficial.
 
 Has unit tests, using Munit (Massive Unit) - these can be run with the following command:
+
 > haxelib run munit test
 
 The unit depend on the hamcrest and munit libraries, so use haxelib to add those:
+
 > haxelib install munit
+
 > haxelib install hamcrest
 
 I had some ideas about publish/subscribe for moving the blocks - but having a controller leads to simpler code and easier
