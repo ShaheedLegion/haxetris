@@ -5,7 +5,7 @@
 --macro lime.Lib.extraParams()
 -cp /usr/local/lib/haxe/lib/lime/6,2,0
 -D lime=6.2.0
--cp Source
+-cp src
 -D tools=6.2.0
 -D howlerjs
 -D no-compilation

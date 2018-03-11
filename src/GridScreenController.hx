@@ -246,6 +246,11 @@ class GridScreenController implements IGridScreenController {
 		return grid;
 	}
 
+	@:allow(GridScreenTest)
+	private function getCurrentBlock(): Block {
+		return currentBlock;
+	}
+
 	public function setAutoMode(auto: Bool): Void {
 		autoMode = auto;
 
@@ -270,13 +275,23 @@ class GridScreenController implements IGridScreenController {
 		return userIsStuck;
 	}
 
+	@:allow(GridScreenTest)
 	// First alter the block coordinates, then call this function.
 	private function canMoveBlockToPosition(worldState: WorldState, block: Block): Bool {
 		if (autoMode) {
 			return true; // In auto mode blocks fall "forever"
 		}
 
+		if (block.y < 0) {
+			return false;
+		}
 		if (block.y + (block.height - 1) > (worldState.getGridRows() - 1)) {
+			return false;
+		}
+		if (block.x < 0) {
+			return false;
+		}
+		if (block.x > (worldState.getGridColumns() - 1)) {
 			return false;
 		}
 
@@ -299,74 +314,52 @@ class GridScreenController implements IGridScreenController {
 		return true;
 	}
 
-	private function moveLeft(worldState: WorldState): Bool {
-		if (currentBlock.x == 0) {
+	@:allow(GridScreenTest)
+	private function moveLeft(worldState: WorldState, block: Block): Bool {
+		if (block.x == 0) {
 			return false;
 		}
-
-		var block: Block = {width: currentBlock.width, height: currentBlock.height,
-		orientation: currentBlock.orientation, x: currentBlock.x, y: currentBlock.y, col: currentBlock.col,
-		generator: currentBlock.generator, data: new Array()};
-
-		blockCopy(currentBlock, block);
 
 		--block.x;
 		var canMoveLeft: Bool = canMoveBlockToPosition(worldState, block);
 
-		if (canMoveLeft) {
-			--currentBlock.x;
+		if (!canMoveLeft) {
+			++block.x;
 		}
 		return canMoveLeft;
 	}
 
-	private function moveRight(worldState: WorldState): Bool {
-		if (currentBlock.x + (currentBlock.width - 1) == worldState.getGridColumns() - 1) {
+	@:allow(GridScreenTest)
+	private function moveRight(worldState: WorldState, block: Block): Bool {
+		if (block.x + (block.width - 1) == worldState.getGridColumns() - 1) {
 			return false;
 		}
-
-		var block: Block = {
-			width: currentBlock.width,
-			height: currentBlock.height,
-			orientation: currentBlock.orientation,
-			x: currentBlock.x,
-			y: currentBlock.y,
-			col: currentBlock.col,
-			generator: currentBlock.generator,
-			data: new Array()
-		};
-
-		blockCopy(currentBlock, block);
 
 		++block.x;
 		var canMoveRight: Bool = canMoveBlockToPosition(worldState, block);
 
-		if (canMoveRight) {
-			++currentBlock.x;
+		if (!canMoveRight) {
+			--block.x;
 		}
 		return canMoveRight;
 	}
 
-	private function moveDown(worldState: WorldState): Bool {
+	@:allow(GridScreenTest)
+	private function moveDown(worldState: WorldState, block: Block): Bool {
 		if (autoMode) {
 			// Remember to actually advance block if we are taking the autoMode shortcut.
-			++currentBlock.y;
+			++block.y;
 			return true;
 		}
-		if (currentBlock.y + (currentBlock.height - 1) == worldState.getGridRows() - 1) {
+		if (block.y + (block.height - 1) == worldState.getGridRows() - 1) {
 			return false;
 		}
-
-		var block: Block = {width: currentBlock.width, height: currentBlock.height,
-		orientation: currentBlock.orientation, x: currentBlock.x, y: currentBlock.y, col: currentBlock.col,
-		generator: currentBlock.generator, data: new Array()};
-
-		blockCopy(currentBlock, block);
 
 		++block.y;
 		var canMoveDown: Bool = canMoveBlockToPosition(worldState, block);
 
-		if (canMoveDown) {
-			++currentBlock.y;
+		if (!canMoveDown) {
+			--block.y;
 		}
 		return canMoveDown;
 	}
@@ -438,16 +431,16 @@ class GridScreenController implements IGridScreenController {
 
 		eraseBlock(worldState); // clear the block off the grid first.
 		if (lastKey == MOVE_LEFT) {
-			moveLeft(worldState);
+			moveLeft(worldState, currentBlock);
 		} else if (lastKey == MOVE_RIGHT) {
-			moveRight(worldState);
+			moveRight(worldState, currentBlock);
 		} else if (lastKey == ROTATE) {
 			rotateBlock(worldState);
 		} else if (lastKey == MOVE_DOWN) {
-			moveDown(worldState);
+			moveDown(worldState, currentBlock);
 		}
 
-		var canBlockAdvance: Bool = moveDown(worldState);
+		var canBlockAdvance: Bool = moveDown(worldState, currentBlock);
 		var isBlockStillVisible: Bool = drawBlock(worldState);
 
 		var isStillValidBlock = (autoMode ? isBlockStillVisible : canBlockAdvance);

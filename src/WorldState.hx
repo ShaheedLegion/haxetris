@@ -20,7 +20,7 @@ class WorldState implements IResizeable {
 	private var touchEndPoint: Point; // Point where touch gesture ended.
 	private var keyPressed: Array<Int>; // The key that was pressed.
 
-	@:allow(HaxeTris)
+	@:allow(HaxeTris, GridScreenTest, WorldStateTest)
 	private function new(gw: Int, gh: Int, w: Int, h: Int) {
 		gridColumns = gw;
 		gridRows = gh;
@@ -111,7 +111,7 @@ class WorldState implements IResizeable {
 		displayHeight = newHeight;
 	}
 
-	@:allow(HaxeTris)
+	@:allow(HaxeTris, WorldStateTest)
 	private function setKeyPressed(key: Int) {
 		keyPressed.push(key);
 	}
