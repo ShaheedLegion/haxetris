@@ -1,5 +1,5 @@
 # haxetris
-Tetris in haxe
+## Tetris in haxe
 
 Written with help from OpenFL.
 
@@ -9,7 +9,7 @@ But I wanted to reimagine what the code would look like for this game.
 I mostly wrote this game because I wanted to write one of these for a long time, and OpenFL is awesome for
 basic games like this.
 
-A few things are missing or not handled well - 
+## A few things are missing or not handled well - 
 
 ~Rotating a block while it's at the right of the screen causes the rotation to fail since the block can't
 be rotated and fit into the same space - This would be better handled by displacing the block instead of blocking the rotation.~
@@ -31,11 +31,11 @@ for anyone wanting to fork the code to add in their own pretty images.
 Mostly OOP - some procedural stuff thrown in, strives to use MVC where beneficial.
 
 Has unit tests, using Munit (Massive Unit) - these can be run with the following command:
-haxelib run munit test
+> haxelib run munit test
 
 The unit depend on the hamcrest and munit libraries, so use haxelib to add those:
-haxelib install munit
-haxelib install hamcrest
+> haxelib install munit
+> haxelib install hamcrest
 
 I had some ideas about publish/subscribe for moving the blocks - but having a controller leads to simpler code and easier
 debugging for all involved - as much as I would have liked to add in my newfangled notifier class, there's just no need for it.
