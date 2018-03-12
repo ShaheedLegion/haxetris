@@ -426,10 +426,23 @@ class GridScreenController implements IGridScreenController {
 	}
 
 	private function advanceBlock(worldState: WorldState) {
-		// The user is playing - consume input.
 		var lastKey = worldState.consumeKeyPress();
+		if (lastKey == -1) {
+			// Deal with consuming swipe events.
+			var lastGesture = worldState.consumeSwipeGesture();
+			if (lastGesture == WorldState.SWIPE_LEFT) { 
+				lastKey = MOVE_LEFT;
+			} else if (lastGesture == WorldState.SWIPE_RIGHT) {
+				lastKey = MOVE_RIGHT;
+			} else if (lastGesture == WorldState.SWIPE_UP) {
+				lastKey = ROTATE;
+			} else if (lastGesture == WorldState.SWIPE_DOWN) {
+				lastKey = MOVE_DOWN;
+			}
+		}
 
 		eraseBlock(worldState); // clear the block off the grid first.
+
 		if (lastKey == MOVE_LEFT) {
 			moveLeft(worldState, currentBlock);
 		} else if (lastKey == MOVE_RIGHT) {

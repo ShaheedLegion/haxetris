@@ -59,6 +59,35 @@ class WorldStateTest
 		Assert.isTrue(worldState.consumeKeyPress() == 2);
 		Assert.isTrue(worldState.consumeKeyPress() == 3);
 		Assert.isTrue(worldState.consumeKeyPress() == 4);
+
+		// Test touch consumable events.
+		Assert.isTrue(worldState.consumeSwipeGesture() == -1);
+
+		worldState.setTouchStarted(0, 0);
+		worldState.setTouchEnded(100, 0);
+
+		Assert.isTrue(worldState.consumeSwipeGesture() == WorldState.SWIPE_RIGHT);
+
+		worldState.setTouchStarted(100, 0);
+		worldState.setTouchEnded(0, 0);
+
+		Assert.isTrue(worldState.consumeSwipeGesture() == WorldState.SWIPE_LEFT);
+
+		worldState.setTouchStarted(0, 0);
+		worldState.setTouchEnded(0, 100);
+
+		Assert.isTrue(worldState.consumeSwipeGesture() == WorldState.SWIPE_DOWN);
+
+		worldState.setTouchStarted(0, 100);
+		worldState.setTouchEnded(0, 0);
+
+		Assert.isTrue(worldState.consumeSwipeGesture() == WorldState.SWIPE_UP);
+
+		// Check that we're within the given window of touch event.
+		worldState.setTouchStarted(100, 20);
+		worldState.setTouchEnded(110, 10);
+
+		Assert.isTrue(worldState.consumeSwipeGesture() == -1);
 	}
 	
 	@AsyncTest

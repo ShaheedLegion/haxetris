@@ -24,7 +24,7 @@ import haxe.macro.Expr;
 		
 		var config = {
 			
-			build: "14",
+			build: "24",
 			company: "Company Name",
 			file: "Haxtris",
 			fps: 60,

@@ -1041,7 +1041,7 @@ $hxClasses["ApplicationMain"] = ApplicationMain;
 ApplicationMain.__name__ = ["ApplicationMain"];
 ApplicationMain.main = function() {
 	var projectName = "Haxtris";
-	var config = { build : "14", company : "Company Name", file : "Haxtris", fps : 60, name : "Haxtris", orientation : "", packageName : "com.sample.haxtris", version : "1.0.0", windows : [{ allowHighDPI : false, alwaysOnTop : false, antialiasing : 0, background : 16777215, borderless : false, colorDepth : 16, depthBuffer : false, display : 0, fullscreen : false, hardware : true, height : 0, hidden : false, maximized : false, minimized : false, parameters : { }, resizable : true, stencilBuffer : true, title : "Haxtris", vsync : false, width : 0, x : null, y : null}]};
+	var config = { build : "24", company : "Company Name", file : "Haxtris", fps : 60, name : "Haxtris", orientation : "", packageName : "com.sample.haxtris", version : "1.0.0", windows : [{ allowHighDPI : false, alwaysOnTop : false, antialiasing : 0, background : 16777215, borderless : false, colorDepth : 16, depthBuffer : false, display : 0, fullscreen : false, hardware : true, height : 0, hidden : false, maximized : false, minimized : false, parameters : { }, resizable : true, stencilBuffer : true, title : "Haxtris", vsync : false, width : 0, x : null, y : null}]};
 	lime_system_System.__registerEntryPoint(projectName,ApplicationMain.create,config);
 };
 ApplicationMain.create = function(config) {
@@ -4673,6 +4673,18 @@ GridScreenController.prototype = {
 	}
 	,advanceBlock: function(worldState) {
 		var lastKey = worldState.consumeKeyPress();
+		if(lastKey == -1) {
+			var lastGesture = worldState.consumeSwipeGesture();
+			if(lastGesture == WorldState.SWIPE_LEFT) {
+				lastKey = this.MOVE_LEFT;
+			} else if(lastGesture == WorldState.SWIPE_RIGHT) {
+				lastKey = this.MOVE_RIGHT;
+			} else if(lastGesture == WorldState.SWIPE_UP) {
+				lastKey = this.ROTATE;
+			} else if(lastGesture == WorldState.SWIPE_DOWN) {
+				lastKey = this.MOVE_DOWN;
+			}
+		}
 		this.eraseBlock(worldState);
 		if(lastKey == this.MOVE_LEFT) {
 			this.moveLeft(worldState,this.currentBlock);
@@ -4988,7 +5000,6 @@ ScreenManager.prototype = {
 	,currentScreen: null
 	,soundManager: null
 	,resize: function(newWidth,newHeight) {
-		haxe_Log.trace("Resize in ScreenManager",{ fileName : "ScreenManager.hx", lineNumber : 19, className : "ScreenManager", methodName : "resize"});
 		var _g = 0;
 		var _g1 = this.gameScreens;
 		while(_g < _g1.length) {
@@ -5391,6 +5402,8 @@ var WorldState = function(gw,gh,w,h) {
 	this.gridPixelHeight = h;
 	this.keyPressed = [];
 	this.canvas = new openfl_display_Sprite();
+	this.touchBeginPoint = new openfl_geom_Point();
+	this.touchEndPoint = new openfl_geom_Point();
 	this.canvas.get_graphics().beginFill(16711680,1);
 	this.canvas.get_graphics().drawRect(0,0,this.intrinsicWidth,this.intrinsicHeight);
 	this.gridController = new GridScreenController(this);
@@ -5413,7 +5426,7 @@ WorldState.prototype = {
 	,canvas: null
 	,gridScreen: null
 	,gridController: null
-	,touchRegistered: null
+	,swipeRegistered: null
 	,touchBeginPoint: null
 	,touchEndPoint: null
 	,keyPressed: null
@@ -5484,19 +5497,42 @@ WorldState.prototype = {
 		this.keyPressed.push(key);
 	}
 	,setTouchStarted: function(x,y) {
-		this.touchRegistered = true;
+		this.swipeRegistered = false;
+		this.touchBeginPoint.setTo(x,y);
 	}
 	,setTouchMoved: function(x,y) {
-		this.touchRegistered = true;
+		this.swipeRegistered = false;
 	}
 	,setTouchEnded: function(x,y) {
-		this.touchRegistered = false;
+		this.swipeRegistered = true;
+		this.touchEndPoint.setTo(x,y);
 	}
 	,consumeKeyPress: function() {
 		if(this.keyPressed.length == 0) {
 			return -1;
 		}
 		return this.keyPressed.shift();
+	}
+	,consumeSwipeGesture: function() {
+		if(!this.swipeRegistered) {
+			return -1;
+		}
+		this.swipeRegistered = false;
+		var xDistance = this.touchEndPoint.x - this.touchBeginPoint.x;
+		var yDistance = this.touchEndPoint.y - this.touchBeginPoint.y;
+		if(Math.abs(xDistance) > 20) {
+			if(this.touchBeginPoint.x < this.touchEndPoint.x) {
+				return WorldState.SWIPE_RIGHT;
+			}
+			return WorldState.SWIPE_LEFT;
+		}
+		if(Math.abs(yDistance) > 20) {
+			if(this.touchBeginPoint.y < this.touchEndPoint.y) {
+				return WorldState.SWIPE_DOWN;
+			}
+			return WorldState.SWIPE_UP;
+		}
+		return -1;
 	}
 	,__class__: WorldState
 };
@@ -32176,7 +32212,7 @@ var lime_utils_AssetCache = function() {
 	this.audio = new haxe_ds_StringMap();
 	this.font = new haxe_ds_StringMap();
 	this.image = new haxe_ds_StringMap();
-	this.version = 215721;
+	this.version = 598639;
 };
 $hxClasses["lime.utils.AssetCache"] = lime_utils_AssetCache;
 lime_utils_AssetCache.__name__ = ["lime","utils","AssetCache"];
@@ -71897,6 +71933,10 @@ openfl_display_DisplayObject.__tempStack = new lime_utils_ObjectPool(function() 
 },function(stack) {
 	stack.data.set_length(0);
 });
+WorldState.SWIPE_DOWN = 1024;
+WorldState.SWIPE_UP = 1025;
+WorldState.SWIPE_LEFT = 1026;
+WorldState.SWIPE_RIGHT = 1027;
 haxe_Serializer.USE_CACHE = false;
 haxe_Serializer.USE_ENUM_INDEX = false;
 haxe_Serializer.BASE64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789%:";

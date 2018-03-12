@@ -15,10 +15,14 @@ class WorldState implements IResizeable {
 	private var canvas: Sprite;	// drawable surface of the game.
 	private var gridScreen: GridScreen; // Grid screen display.
 	private var gridController: GridScreenController; // Grid Screen Controller.
-	private var touchRegistered: Bool; // Is user touching screen?
+	private var swipeRegistered: Bool; // Has user swiped screen?
 	private var touchBeginPoint: Point; //Point where touch started.
 	private var touchEndPoint: Point; // Point where touch gesture ended.
 	private var keyPressed: Array<Int>; // The key that was pressed.
+	public static var SWIPE_DOWN: Int = 1024;
+	public static var SWIPE_UP: Int = 1025;
+	public static var SWIPE_LEFT: Int = 1026;
+	public static var SWIPE_RIGHT: Int = 1027;
 
 	@:allow(HaxeTris, GridScreenTest, WorldStateTest)
 	private function new(gw: Int, gh: Int, w: Int, h: Int) {
@@ -32,6 +36,8 @@ class WorldState implements IResizeable {
 		gridPixelHeight = h;
 		keyPressed = new Array();
 		canvas = new Sprite();
+		touchBeginPoint = new Point();
+		touchEndPoint = new Point();
 
 		canvas.graphics.beginFill (0xFF0000, 1);
 		canvas.graphics.drawRect (0, 0, intrinsicWidth, intrinsicHeight);
@@ -115,22 +121,47 @@ class WorldState implements IResizeable {
 	private function setKeyPressed(key: Int) {
 		keyPressed.push(key);
 	}
-	@:allow(HaxeTris)
+	@:allow(HaxeTris, WorldStateTest)
 	private function setTouchStarted(x: Float, y: Float) {
-		touchRegistered = true;
+		swipeRegistered = false;
+		touchBeginPoint.setTo(x, y);
 	}
-	@:allow(HaxeTris)
+	@:allow(HaxeTris, WorldStateTest)
 	private function setTouchMoved(x: Float, y: Float) {
-		touchRegistered = true;
+		swipeRegistered = false;
 	}
-	@:allow(HaxeTris)
+	@:allow(HaxeTris, WorldStateTest)
 	private function setTouchEnded(x: Float, y: Float) {
-		touchRegistered = false;
+		swipeRegistered = true;
+		touchEndPoint.setTo(x, y);
 	}
 
 	// Any listeners asking for the key will 'Consume' the key press.
 	public function consumeKeyPress(): Int {
 		if (keyPressed.length == 0) return -1;
 		return keyPressed.shift();
+	}
+	public function consumeSwipeGesture(): Int {
+		if (!swipeRegistered) return -1;
+
+		swipeRegistered = false;
+
+		var xDistance = touchEndPoint.x - touchBeginPoint.x;
+		var yDistance = touchEndPoint.y - touchBeginPoint.y;
+
+		// For less than 20 pixel differences we disregard as user may have been indecisive.
+		if (Math.abs(xDistance) > 20) {
+			if (touchBeginPoint.x < touchEndPoint.x) {
+				return SWIPE_RIGHT;
+			}
+			return SWIPE_LEFT;
+		}
+		if (Math.abs(yDistance) > 20) {
+			if (touchBeginPoint.y < touchEndPoint.y) {
+				return SWIPE_DOWN;
+			}
+			return SWIPE_UP;
+		}
+		return -1;
 	}
 }
